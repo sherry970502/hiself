@@ -96,8 +96,15 @@ export default function BoardPage() {
             </div>
           }
         />
-        <div className="shrink-0 px-4 pb-5 pt-2 border-t border-zinc-50">
+        <div className="shrink-0 px-4 pb-3 pt-2 border-t border-zinc-50">
           <VoiceComposer onSend={send} disabled={busy} placeholder="问点什么…" />
+          <p className="text-center text-[10px] text-zinc-300 mt-2.5">
+            Powered by <span className="font-semibold text-zinc-400">HiSelf</span> · 遇见更好的自己 ·{' '}
+            <a href="https://github.com/sherry970502/hiself" target="_blank" rel="noopener"
+              className="text-zinc-400 underline underline-offset-2 hover:text-purple-500 transition-colors">
+              想要一个自己的分身？
+            </a>
+          </p>
         </div>
       </div>
 
