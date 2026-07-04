@@ -12,9 +12,14 @@ export function getDb(): Database.Database {
   if (!_db) {
     fs.mkdirSync(path.dirname(DB_PATH), { recursive: true })
     _db = new Database(DB_PATH)
-    _db.pragma('journal_mode = WAL')
+    // 容器环境下不用 WAL：容器被强杀/交接时 WAL 未落盘的事务会丢。
+    // TRUNCATE + FULL 让每次提交直接固化进主文件，单用户规模性能足够。
+    _db.pragma('journal_mode = TRUNCATE')
+    _db.pragma('synchronous = FULL')
     _db.pragma('foreign_keys = ON')
     initSchema(_db)
+    process.once('SIGTERM', () => { try { _db?.close() } catch { /* noop */ } })
+    process.once('SIGINT', () => { try { _db?.close() } catch { /* noop */ } })
   }
   return _db
 }
