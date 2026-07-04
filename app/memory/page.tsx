@@ -73,6 +73,7 @@ function MemoryPage() {
 function MemoriesTab() {
   const [memories, setMemories] = useState<Memory[]>([])
   const [typeFilter, setTypeFilter] = useState<MemoryType | ''>('')
+  const [visFilter, setVisFilter] = useState<'' | 'public' | 'private'>('')
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
@@ -81,11 +82,12 @@ function MemoriesTab() {
     setLoading(true)
     const params = new URLSearchParams()
     if (typeFilter) params.set('type', typeFilter)
+    if (visFilter) params.set('visibility', visFilter)
     if (search.trim()) params.set('search', search.trim())
     const res = await fetch(`/api/memories?${params}`)
     setMemories(await res.json())
     setLoading(false)
-  }, [typeFilter, search])
+  }, [typeFilter, visFilter, search])
 
   useEffect(() => { load() }, [load])
 
@@ -108,6 +110,21 @@ function MemoriesTab() {
           className="ml-auto shrink-0 flex items-center gap-1 text-xs bg-zinc-900 text-white rounded-lg px-3 py-2 hover:bg-zinc-700 transition-colors">
           <Plus className="w-3.5 h-3.5" />手动添加
         </button>
+      </div>
+
+      {/* 可见性审计：一眼看清哪些内容对外可见 */}
+      <div className="flex items-center gap-1.5 mb-4">
+        <span className="text-[11px] text-zinc-400 mr-1">可见性</span>
+        <FilterChip active={visFilter === ''} onClick={() => setVisFilter('')}>全部</FilterChip>
+        <FilterChip active={visFilter === 'public'} onClick={() => setVisFilter('public')}>
+          <span className="inline-flex items-center gap-1"><Globe className="w-3 h-3 text-green-500" />对外可见</span>
+        </FilterChip>
+        <FilterChip active={visFilter === 'private'} onClick={() => setVisFilter('private')}>
+          <span className="inline-flex items-center gap-1"><Lock className="w-3 h-3" />仅自己</span>
+        </FilterChip>
+        {visFilter === 'public' && (
+          <span className="text-[11px] text-amber-600 ml-2">↓ 以下内容访客都能问到，逐条确认一遍</span>
+        )}
       </div>
 
       {showAdd && <AddMemoryForm onAdded={() => { setShowAdd(false); load() }} />}

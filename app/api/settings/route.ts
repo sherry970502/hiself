@@ -8,6 +8,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     hasKey: !!key,
     keyMasked: key ? `${key.slice(0, 10)}…${key.slice(-4)}` : null,
+    model: MODEL,
   })
 }
 

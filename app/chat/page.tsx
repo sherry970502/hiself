@@ -1,10 +1,11 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
-import { Loader2, BrainCircuit, Undo2, X } from 'lucide-react'
+import { Loader2, BrainCircuit, Undo2, X, MessageCircleQuestion } from 'lucide-react'
 import { OwnerNav } from '@/components/OwnerNav'
 import { useOwnerGuard } from '@/components/useOwnerGuard'
 import { VoiceComposer } from '@/components/VoiceComposer'
 import { ChatThread, type ThreadMessage } from '@/components/ChatThread'
+import { QuestionBankPanel } from '@/components/QuestionBankPanel'
 import { TYPE_META, type Memory } from '@/types'
 
 export default function OwnerChatPage() {
@@ -15,6 +16,7 @@ export default function OwnerChatPage() {
   const [loaded, setLoaded] = useState(false)
   // 沉淀轻提示（可撤销）
   const [sediments, setSediments] = useState<Memory[]>([])
+  const [showBank, setShowBank] = useState(false)
 
   useEffect(() => {
     if (!ready) return
@@ -73,9 +75,18 @@ export default function OwnerChatPage() {
     <div className="flex h-screen bg-zinc-50 overflow-hidden">
       <OwnerNav />
       <main className="flex-1 flex flex-col max-w-3xl mx-auto w-full">
-        <div className="shrink-0 px-4 py-4 border-b border-zinc-100 bg-zinc-50/80 backdrop-blur-sm">
-          <h2 className="text-sm font-bold text-zinc-800">和分身对话</h2>
-          <p className="text-[11px] text-zinc-400 mt-0.5">语音或文字都可以。你说的观点会被自动记住，它也会主动问你问题。</p>
+        <div className="shrink-0 px-4 py-4 border-b border-zinc-100 bg-zinc-50/80 backdrop-blur-sm flex items-center justify-between">
+          <div>
+            <h2 className="text-sm font-bold text-zinc-800">和分身对话</h2>
+            <p className="text-[11px] text-zinc-400 mt-0.5">语音或文字都可以。你说的观点会被自动记住，它也会主动问你问题。</p>
+          </div>
+          <button onClick={() => setShowBank(!showBank)}
+            className={`shrink-0 flex items-center gap-1.5 text-xs rounded-lg px-3 py-2 transition-colors ${
+              showBank ? 'bg-purple-100 text-purple-700' : 'bg-white border border-zinc-200 text-zinc-600 hover:border-purple-300'
+            }`}>
+            <MessageCircleQuestion className="w-3.5 h-3.5" />
+            问题库
+          </button>
         </div>
 
         {!loaded ? (
@@ -118,6 +129,13 @@ export default function OwnerChatPage() {
           <VoiceComposer onSend={send} disabled={busy} />
         </div>
       </main>
+
+      {showBank && (
+        <QuestionBankPanel
+          onAsk={msg => setMessages(prev => [...prev, msg])}
+          onClose={() => setShowBank(false)}
+        />
+      )}
     </div>
   )
 }

@@ -6,7 +6,7 @@ import { useOwnerGuard } from '@/components/useOwnerGuard'
 
 export default function SettingsPage() {
   const ready = useOwnerGuard()
-  const [status, setStatus] = useState<{ hasKey: boolean; keyMasked: string | null } | null>(null)
+  const [status, setStatus] = useState<{ hasKey: boolean; keyMasked: string | null; model?: string } | null>(null)
   const [keyInput, setKeyInput] = useState('')
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<{ kind: 'ok' | 'warn'; text: string } | null>(null)
@@ -56,7 +56,7 @@ export default function SettingsPage() {
             </p>
             <p className="text-xs text-zinc-500 mt-0.5">
               {status.hasKey
-                ? `当前 key：${status.keyMasked}`
+                ? `当前 key：${status.keyMasked} · 模型：${status.model ?? ''}（Claude Sonnet 4.6）`
                 : '未配置 API key，所有 AI 能力为本地模拟。配置后立即切换，无需重启。'}
             </p>
           </div>
