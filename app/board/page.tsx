@@ -3,6 +3,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { Sparkles, MailPlus, X, Check } from 'lucide-react'
 import { VoiceComposer } from '@/components/VoiceComposer'
 import { ChatThread, type ThreadMessage } from '@/components/ChatThread'
+import { EMPTY_PROFILE, type BoardProfile } from '@/types'
 
 export default function BoardPage() {
   const [messages, setMessages] = useState<ThreadMessage[]>([])
@@ -12,9 +13,11 @@ export default function BoardPage() {
   const [showLeaveNote, setShowLeaveNote] = useState(false)
   const [note, setNote] = useState('')
   const [noteSent, setNoteSent] = useState(false)
+  const [profile, setProfile] = useState<BoardProfile>(EMPTY_PROFILE)
 
   useEffect(() => {
     setSessionId(sessionStorage.getItem('board_session'))
+    fetch('/api/board/profile').then(r => r.json()).then(setProfile).catch(() => {})
   }, [])
 
   const send = useCallback(async (text: string) => {
@@ -67,11 +70,17 @@ export default function BoardPage() {
     <div className="h-screen flex flex-col bg-gradient-to-b from-zinc-50 to-zinc-100">
       {/* 头部 */}
       <header className="shrink-0 px-5 py-4 flex items-center gap-3 max-w-2xl mx-auto w-full">
-        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-200/50">
-          <Sparkles className="w-5 h-5 text-white" />
+        <div className="w-10 h-10 rounded-2xl overflow-hidden shadow-lg shadow-purple-200/50 shrink-0">
+          {profile.avatar
+            // eslint-disable-next-line @next/next/no-img-element
+            ? <img src={profile.avatar} alt="" className="w-full h-full object-cover" />
+            : <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center"><Sparkles className="w-5 h-5 text-white" /></div>}
         </div>
         <div className="flex-1">
-          <h1 className="font-bold text-zinc-900 text-[15px]">HiSelf<span className="ml-2 text-[11px] font-normal text-zinc-400">他的 AI 分身</span></h1>
+          <h1 className="font-bold text-zinc-900 text-[15px]">
+            {profile.name || 'HiSelf'}
+            <span className="ml-2 text-[11px] font-normal text-zinc-400">{profile.name ? 'AI 分身' : '他的 AI 分身'}</span>
+          </h1>
           <p className="text-[11px] text-zinc-400">有什么想问的，直接聊 · 对话对本人可见</p>
         </div>
         <button onClick={() => setShowLeaveNote(true)}
@@ -86,13 +95,23 @@ export default function BoardPage() {
           messages={messages}
           streaming={streaming}
           emptyHint={
-            <div className="text-center max-w-xs">
-              <p className="text-[15px] font-medium text-zinc-700 mb-2">你好，我是他的 AI 分身。</p>
-              <p className="text-[13px] text-zinc-400 leading-relaxed">
-                我知道他的观点、方法论和经历。<br />
-                问我任何事——他讲过的我如实转述并展开，<br />
-                他没讲过的我不会瞎编。
+            <div className="text-center max-w-sm">
+              <p className="text-[15px] font-medium text-zinc-700 mb-2">
+                {profile.greeting || '你好，我是他的 AI 分身。'}
               </p>
+              <p className="text-[13px] text-zinc-400 leading-relaxed mb-5">
+                {profile.bio || <>我知道他的观点、方法论和经历。问我任何事——他讲过的我如实转述并展开，他没讲过的我不会瞎编。</>}
+              </p>
+              {profile.questions.length > 0 && (
+                <div className="flex flex-col gap-2 items-stretch">
+                  {profile.questions.map((q, i) => (
+                    <button key={i} onClick={() => send(q)} disabled={busy}
+                      className="text-[13px] text-left text-zinc-600 bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-2.5 hover:border-purple-300 hover:bg-purple-50/50 hover:text-purple-700 transition-all disabled:opacity-40">
+                      💬 {q}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           }
         />

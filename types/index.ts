@@ -59,6 +59,20 @@ export interface InboxMessage {
   created_at: string
 }
 
+// ─── 看板门面 ─────────────────────────────────────────────────────────────────
+
+export interface BoardProfile {
+  name: string          // 对外称呼
+  avatar: string | null // 头像（dataURL）
+  greeting: string      // 分身的第一句话
+  bio: string           // 自我介绍（同时注入 Visitor 模式 system prompt）
+  questions: string[]   // 开场推荐问题（最多 4 个）
+}
+
+export const EMPTY_PROFILE: BoardProfile = {
+  name: '', avatar: null, greeting: '', bio: '', questions: [],
+}
+
 // ─── 仪表盘 ───────────────────────────────────────────────────────────────────
 
 export interface DashboardStats {

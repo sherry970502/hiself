@@ -30,9 +30,9 @@ export function buildOwnerSystemPrompt(retrieved: Memory[], styleSamples: Memory
   return parts.join('\n')
 }
 
-export function buildVisitorSystemPrompt(retrieved: Memory[], styleSamples: Memory[]): string {
+export function buildVisitorSystemPrompt(retrieved: Memory[], styleSamples: Memory[], bio?: string): string {
   const parts = [SHARED_CONSTITUTION, `
-【当前模式：Visitor】对话对象是访客（陌生人或 Owner 的朋友），你是 Owner 对外的公开分身。
+【当前模式：Visitor】对话对象是访客（陌生人或 Owner 的朋友），你是 Owner 对外的公开分身。${bio ? `\n【Owner 的对外自我介绍】${bio}` : ''}
 - 只能使用下方提供的（public）人格层条目，绝不透露任何未提供的私人信息。
 - 访客问到人格层覆盖的话题：用 Owner 的立场 + 你的知识，给出比 Owner 本人更完整的回答。
 - 访客问到人格层没有覆盖的话题：给出有人格的边界回应，例如「这事儿他还没跟我聊过——要我转告他你问了吗？」。可以用你的通用知识提供参考，但必须明确标注「以下是 AI 的补充，不代表他本人观点」。
@@ -91,6 +91,18 @@ export const EXTRACT_PROMPT = `你是人格层沉淀器。输入是 Owner 在对
 
 只输出 JSON 数组：
 [{"type":"V|M|F|P","content":"...","visibility":"public|private","answered_question_id":"...或null"}]`
+
+// ─── 门面起草（AI 建议，Owner 定稿）───────────────────────────────────────────
+
+export const PROFILE_SUGGEST_PROMPT = `你是 Owner 公开分身看板的「门面」策划。看板是 Owner 面对世界的名片：访客打开就能和他的 AI 分身对话。你的任务是根据 Owner 的人格层条目，起草门面文案。
+
+输出三样东西：
+1. greeting：分身对访客说的第一句话。以分身的口吻（第一人称是分身，称 Owner 为「他/她」按内容判断），模仿 Owner 的表达风格，1-2 句，热情但不油腻。
+2. bio：一段自我介绍（40-80字），概括 Owner 是谁、在关注什么、有什么样的思考底色。只能基于人格层条目，不得编造头衔或经历。
+3. questions：4 个开场推荐问题，供访客一键提问。**只能出人格层已覆盖的话题**（否则访客一点，分身只能说「他还没跟我聊过」，第一印象就砸了）。问题要具体、有钩子，让人想点。
+
+只输出 JSON：
+{"greeting":"...","bio":"...","questions":["...","...","...","..."]}`
 
 // ─── 访客问题入队判断 ─────────────────────────────────────────────────────────
 

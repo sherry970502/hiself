@@ -1,13 +1,14 @@
 'use client'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutDashboard, MessageCircle, Database, Brain, Settings, ExternalLink, LogOut } from 'lucide-react'
+import { LayoutDashboard, MessageCircle, Database, Brain, Settings, Store, ExternalLink, LogOut } from 'lucide-react'
 
 const NAV = [
   { href: '/', label: '仪表盘', icon: LayoutDashboard },
   { href: '/chat', label: '对话', icon: MessageCircle },
   { href: '/feed', label: '喂养', icon: Database },
   { href: '/memory', label: '记忆', icon: Brain },
+  { href: '/facade', label: '门面', icon: Store },
   { href: '/settings', label: '设置', icon: Settings },
 ]
 

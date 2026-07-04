@@ -38,6 +38,19 @@ export function mockOwnerReply(message: string, retrieved: Memory[], pendingQues
   return parts.join('\n')
 }
 
+export function mockProfileSuggest(memories: Memory[]): { greeting: string; bio: string; questions: string[] } {
+  const vm = memories.filter(m => m.type === 'V' || m.type === 'M').slice(0, 4)
+  return {
+    greeting: '你好呀，我是他的 AI 分身——他的观点和方法论我都门儿清，随便问。',
+    bio: vm.length
+      ? `一个爱思考的人。最近在琢磨：${vm[0].content.slice(0, 40)}……`
+      : '他还没喂我多少资料，但很快就会变得很懂他。',
+    questions: vm.length
+      ? vm.map(m => `你怎么看「${m.content.slice(0, 18)}…」这个话题？`)
+      : ['你的主人是个什么样的人？', '你最近在思考什么？', '你们是怎么工作的？', '你能替他做什么？'],
+  }
+}
+
 export function mockVisitorReply(message: string, retrieved: Memory[], covered: boolean): string {
   if (covered) {
     return `（Mock 模式）关于这个问题，他的立场是：「${retrieved[0].content.slice(0, 100)}」。展开讲讲的话——这套思路的核心在于把他的判断和更完整的论证结合起来。`

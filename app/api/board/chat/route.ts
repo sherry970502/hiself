@@ -4,6 +4,7 @@ import { buildVisitorSystemPrompt, VISITOR_GAP_PROMPT } from '@/lib/prompts'
 import { retrieveMemories, getStyleSamples, hasCoverage } from '@/lib/retrieval'
 import { createMemory } from '@/lib/db/queries/memories'
 import { getOrCreateSession, bumpSessionTurn, addVisitorMessage, getSessionMessages, createInboxMessage } from '@/lib/db/queries/board'
+import { getBoardProfile } from '@/lib/db/queries/settings'
 import { mockVisitorReply } from '@/lib/mock'
 
 const MAX_TURNS_PER_SESSION = 30
@@ -42,7 +43,7 @@ export async function POST(req: NextRequest) {
   const retrieved = retrieveMemories(message, { visibility: 'public', limit: 8 })
   const covered = hasCoverage(message, retrieved)
   const styleSamples = getStyleSamples('public', 4)
-  const system = buildVisitorSystemPrompt(retrieved, styleSamples)
+  const system = buildVisitorSystemPrompt(retrieved, styleSamples, getBoardProfile().bio || undefined)
   const history = getSessionMessages(session.id, 20).map(m => ({ role: m.role, content: m.content }))
 
   const encoder = new TextEncoder()
