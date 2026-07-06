@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { isOwner, unauthorized } from '@/lib/auth'
+import { isOwner, isBoardUnlocked, unauthorized } from '@/lib/auth'
 import { getBoardProfile, setBoardProfile } from '@/lib/db/queries/settings'
 import { EMPTY_PROFILE, type BoardProfile } from '@/types'
 
-/** 门面是对外内容，GET 公开（看板页要用） */
-export async function GET() {
+/** 门面是对外内容；私密模式下未解锁的访客不返回真实内容,避免泄露 */
+export async function GET(req: NextRequest) {
+  if (!isBoardUnlocked(req)) return NextResponse.json(EMPTY_PROFILE)
   return NextResponse.json(getBoardProfile())
 }
 

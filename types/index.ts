@@ -73,6 +73,38 @@ export const EMPTY_PROFILE: BoardProfile = {
   name: '', avatar: null, greeting: '', bio: '', questions: [],
 }
 
+// ─── 看板访问权限 ─────────────────────────────────────────────────────────────
+// 公开模式：所有人可访问；私密模式：访客需答对随机抽到的一道问答题才能进入
+
+export type BoardAccessMode = 'public' | 'private'
+
+export interface BoardChallenge {
+  id: string
+  question: string
+  answer: string
+}
+
+export interface BoardAccess {
+  mode: BoardAccessMode
+  challenges: BoardChallenge[]
+  token: string          // 访客答对后种进 cookie 的凭据，服务端据此判定已解锁
+}
+
+export const EMPTY_ACCESS: BoardAccess = { mode: 'public', challenges: [], token: '' }
+
+// 对外只暴露不含答案/凭据的视图
+export interface BoardAccessStatus {
+  mode: BoardAccessMode
+  unlocked: boolean
+  challenge: { id: string; question: string } | null
+}
+
+// 工作台编辑用(含答案，仅 Owner 可读)
+export interface BoardAccessConfig {
+  mode: BoardAccessMode
+  challenges: BoardChallenge[]
+}
+
 // ─── 仪表盘 ───────────────────────────────────────────────────────────────────
 
 export interface DashboardStats {

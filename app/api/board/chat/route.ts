@@ -5,6 +5,7 @@ import { retrieveMemories, getStyleSamples, hasCoverage } from '@/lib/retrieval'
 import { createMemory } from '@/lib/db/queries/memories'
 import { getOrCreateSession, bumpSessionTurn, addVisitorMessage, getSessionMessages, createInboxMessage } from '@/lib/db/queries/board'
 import { getBoardProfile } from '@/lib/db/queries/settings'
+import { isBoardUnlocked, boardLocked } from '@/lib/auth'
 import { mockVisitorReply } from '@/lib/mock'
 
 const MAX_TURNS_PER_SESSION = 30
@@ -23,6 +24,7 @@ function rateLimited(key: string): boolean {
 }
 
 export async function POST(req: NextRequest) {
+  if (!isBoardUnlocked(req)) return boardLocked()
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] ?? 'local'
   if (rateLimited(ip)) {
     return NextResponse.json({ error: '聊得有点快，休息一下再来～' }, { status: 429 })
@@ -118,6 +120,7 @@ async function processGrowthFlywheel(message: string, covered: boolean, sessionI
 
 // 留言按钮直达
 export async function PUT(req: NextRequest) {
+  if (!isBoardUnlocked(req)) return boardLocked()
   const { content, sessionId } = await req.json()
   if (!content?.trim()) return NextResponse.json({ error: '留言为空' }, { status: 400 })
   const msg = createInboxMessage(content.trim(), sessionId ?? null)
